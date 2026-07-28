@@ -244,9 +244,6 @@ Stage-2 checkpoints exclude the frozen DINOv2 state and concept embeddings.
 Use the same concept bank and class order for training, evaluation, and
 inference.
 
-The three-GPU CUB command above reached **90.06%** (5218/5794) on the official
-test split with seed 1111; the best checkpoint was at epoch 18.
-
 ## Evaluation and inference
 
 Evaluate a dataset checkpoint:
