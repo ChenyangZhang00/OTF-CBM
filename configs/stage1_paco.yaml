@@ -1,0 +1,47 @@
+seed: 1111
+device: cuda
+image_size: 224
+
+data:
+  image_root: data/datasets/coco
+  train_json: data/paco/paco_image_level_train.json
+  val_json: data/paco/paco_image_level_val.json
+  resize_mode: stretch
+
+backbone:
+  repository: facebookresearch/dinov2
+  source: github
+  name: dinov2_vitl14
+  weights: data/pretrained/dinov2_vitl14_pretrain.pth
+
+text_encoder:
+  model: ViT-L-14
+  pretrained: data/pretrained/open_clip_pytorch_model.bin
+
+model:
+  image_dim: 1024
+  feature_dim: 768
+  adapter_hidden_dim: 512
+  num_cost_bases: 18
+  shortcut_init: partial_identity
+
+training:
+  theta_only_epochs: 5
+  adapter_only_epochs: 5
+  joint_epochs: 10
+  batch_size: 128
+  num_workers: 16
+  theta_learning_rate: 0.0001
+  adapter_learning_rate: 0.0001
+  joint_learning_rate: 0.00005
+  l1_weight: 0.001
+  adapter_weight_decay: 0.0001
+  gradient_clip: 1.0
+  checkpoint_interval: 1
+  sinkhorn:
+    epsilon: 0.5
+    tau: 1.0
+    iterations: 50
+
+output:
+  directory: outputs/stage1_paco

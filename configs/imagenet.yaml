@@ -1,0 +1,73 @@
+seed: 1111
+device: cuda
+image_size: 224
+stage1_checkpoint: outputs/stage1_paco/iot_final.pt
+
+dataset:
+  name: imagenet
+  type: imagenet
+  root: data/datasets/imagenet
+  train_directory: train
+  val_directory: val
+  num_classes: 1000
+
+backbone:
+  repository: facebookresearch/dinov2
+  source: github
+  name: dinov2_vitl14
+  weights: data/pretrained/dinov2_vitl14_pretrain.pth
+
+text_encoder:
+  model: ViT-L-14
+  pretrained: data/pretrained/open_clip_pytorch_model.bin
+
+concepts:
+  global_texts: data/concepts/imagenet_global.txt
+  class_concepts: data/concepts/imagenet_class_concepts.json
+  class_names: data/concepts/imagenet_classes.txt
+  bank: data/concepts/cache/imagenet.pt
+  encoding_batch_size: 256
+  global_dtype: float16
+
+model:
+  image_dim: 1024
+  feature_dim: 768
+  adapter_hidden_dim: 512
+  normalize_adapters: true
+  use_geometry_adapter: true
+  geometry_alpha_init: 0.1
+  num_cost_bases: 18
+  flow_hidden_dim: 512
+  time_dim: 32
+  clusters: 16
+  cluster_iterations: 20
+  cluster_backend: faiss
+  cluster_seed: 1234
+  foreground_keep_ratio: 0.5
+  foreground_method: attention
+  background_ratio: 0.7
+  background_penalty: 50.0
+  class_concept_samples: 5
+  activation_chunk_size: 8
+  activation_top_regions: 5
+  sinkhorn:
+    epsilon: 0.01
+    tau: 0.1
+    iterations: 50
+
+training:
+  epochs: 20
+  batch_size: 64
+  num_workers: 16
+  learning_rate: 0.0003
+  weight_decay: 0.0
+  classification_loss_weight: 1.0
+  flow_loss_weight: 1.0
+  checkpoint_interval: 5
+
+evaluation:
+  batch_size: 64
+  num_workers: 16
+
+output:
+  directory: outputs/imagenet

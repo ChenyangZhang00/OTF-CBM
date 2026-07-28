@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+*.log
+
+data/datasets/
+data/pretrained/
+data/paco/
+data/concepts/cache/
+outputs/
+checkpoints/
+*.pth
+*.pt
+*.ckpt
+
+# Concept text/JSON assets are intentionally supplied separately.
+data/concepts/*.txt
+data/concepts/*.json
