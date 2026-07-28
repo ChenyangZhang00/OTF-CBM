@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import random
+import secrets
 import sys
 import time
 from pathlib import Path
@@ -43,6 +44,15 @@ def seed_everything(seed: int) -> None:
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+
+
+def resolve_seed(value: int | str | None) -> int:
+    if value is None or str(value).lower() == "random":
+        return secrets.randbelow(2**31)
+    seed = int(value)
+    if seed < 0:
+        raise ValueError("seed must be non-negative")
+    return seed
 
 
 def collate_records(records: list[dict]) -> list[dict]:
@@ -210,7 +220,10 @@ def build_phases(training_config: dict) -> list[dict]:
 def main() -> None:
     args = parse_args()
     config = load_config(args.config, args.set)
-    seed_everything(int(config.get("seed", 1111)))
+    seed = resolve_seed(config.get("seed", "random"))
+    config["seed"] = seed
+    seed_everything(seed)
+    print(f"seed={seed}")
     requested_device = config.get("device", "cuda")
     device = torch.device(requested_device if torch.cuda.is_available() else "cpu")
     backbone = load_dinov2(config, device)
@@ -314,6 +327,7 @@ def main() -> None:
                     "train_loss": train_loss,
                     "val_loss": val_loss,
                     "elapsed_minutes": (time.time() - start) / 60.0,
+                    "seed": seed,
                 }
                 print(
                     f"epoch={global_epoch} phase={phase['name']} "

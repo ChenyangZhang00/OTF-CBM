@@ -1,4 +1,4 @@
-seed: 1111
+seed: random
 device: cuda
 image_size: 224
 

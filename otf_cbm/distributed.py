@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import secrets
 from dataclasses import dataclass
 from typing import Iterator
 
@@ -83,6 +84,23 @@ def reduce_sums(
     if context.enabled:
         dist.all_reduce(tensor, op=dist.ReduceOp.SUM)
     return tensor.tolist()
+
+
+def resolve_seed(
+    requested_seed: int | str | None,
+    context: DistributedContext,
+) -> int:
+    random_seed = requested_seed is None or str(requested_seed).lower() == "random"
+    if random_seed:
+        seed = secrets.randbelow(2**31) if context.is_main_process else 0
+    else:
+        seed = int(requested_seed)
+        if seed < 0:
+            raise ValueError("seed must be non-negative")
+    value = torch.tensor([seed], dtype=torch.int64, device=context.device)
+    if context.enabled:
+        dist.broadcast(value, src=0)
+    return int(value.item())
 
 
 def unwrap_model(model: nn.Module) -> nn.Module:

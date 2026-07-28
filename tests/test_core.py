@@ -14,7 +14,11 @@ from otf_cbm.checkpoints import (
 )
 from otf_cbm.concepts import ConceptBank
 from otf_cbm.datasets import CUBDataset
-from otf_cbm.distributed import DistributedEvalSampler
+from otf_cbm.distributed import (
+    DistributedContext,
+    DistributedEvalSampler,
+    resolve_seed,
+)
 from otf_cbm.models.cost import CostModel, compute_pairwise_phi
 from otf_cbm.models.otf_cbm import OTFCBM
 from otf_cbm.stage1 import resolve_paco_image
@@ -216,6 +220,12 @@ def test_distributed_eval_sampler_has_exact_coverage() -> None:
     flattened = [index for shard in shards for index in shard]
     assert sorted(flattened) == list(range(17))
     assert len(flattened) == len(set(flattened))
+
+
+def test_seed_resolution_supports_random_and_explicit_values() -> None:
+    context = DistributedContext(False, 0, 0, 1, torch.device("cpu"))
+    assert resolve_seed(1234, context) == 1234
+    assert 0 <= resolve_seed("random", context) < 2**31
 
 
 def test_cub_loader_applies_bounding_box(tmp_path) -> None:

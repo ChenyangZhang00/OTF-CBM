@@ -218,7 +218,7 @@ def build_dataset(config: dict, split: str) -> Dataset:
             split,
             transform,
             val_fraction=float(dataset_config.get("val_fraction", 0.2)),
-            seed=int(config.get("seed", 1111)),
+            seed=int(dataset_config.get("split_seed", 1111)),
         )
     else:
         raise ValueError(f"Unsupported dataset type: {dataset_type}")

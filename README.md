@@ -209,7 +209,7 @@ Single GPU:
 ```bash
 python scripts/train.py --config configs/cub.yaml \
   --set training.batch_size=16 \
-  --set output.directory=outputs/cub_seed1111
+  --set output.directory=outputs/cub_single
 ```
 
 Three GPUs with a global batch size of approximately 64:
@@ -225,11 +225,13 @@ CUDA_VISIBLE_DEVICES=0,1,2 torchrun \
   --config configs/cub.yaml \
   --set training.batch_size=21 \
   --set training.num_workers=8 \
-  --set output.directory=outputs/cub_ddp_seed1111
+  --set output.directory=outputs/cub_ddp
 ```
 
 `training.batch_size` is per GPU under DDP. Replace `configs/cub.yaml` with any
-other Stage-2 config. Rank 0 writes:
+other Stage-2 config. By default, rank 0 generates a random seed and records it
+in the console, metrics, and checkpoints. Set `--set seed=1111` to reproduce a
+run. Rank 0 writes:
 
 ```text
 outputs/<run>/
@@ -251,7 +253,7 @@ Evaluate a dataset checkpoint:
 ```bash
 python scripts/evaluate.py \
   --config configs/cub.yaml \
-  --checkpoint outputs/cub_ddp_seed1111/best.pt \
+  --checkpoint outputs/cub_ddp/best.pt \
   --split val
 ```
 
@@ -260,7 +262,7 @@ Run single-image inference:
 ```bash
 python scripts/infer.py \
   --config configs/cub.yaml \
-  --checkpoint outputs/cub_ddp_seed1111/best.pt \
+  --checkpoint outputs/cub_ddp/best.pt \
   --image path/to/image.jpg \
   --top-classes 5 \
   --top-concepts 10

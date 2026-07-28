@@ -29,6 +29,7 @@ from otf_cbm.distributed import (
     barrier,
     cleanup_distributed,
     reduce_sums,
+    resolve_seed,
     setup_distributed,
     unwrap_model,
 )
@@ -187,7 +188,8 @@ def prepare_output(
 
 
 def train(config: dict, context: DistributedContext) -> None:
-    seed = int(config.get("seed", 1111))
+    seed = resolve_seed(config.get("seed", "random"), context)
+    config["seed"] = seed
     seed_everything(seed + context.rank)
     output_dir, metrics_path = prepare_output(config, context)
 
@@ -261,6 +263,7 @@ def train(config: dict, context: DistributedContext) -> None:
             f"batch_per_device={batch_per_device} "
             f"global_batch={batch_per_device * context.world_size}"
         )
+        print(f"seed={seed}")
         print(f"trainable_parameters={trainable:,}")
         print(
             "frozen: backbone, theta; "
@@ -301,6 +304,7 @@ def train(config: dict, context: DistributedContext) -> None:
                 "best": best,
                 "elapsed_minutes": (time.time() - start) / 60.0,
                 "world_size": context.world_size,
+                "seed": seed,
             }
 
             if context.is_main_process:

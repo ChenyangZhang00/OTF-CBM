@@ -1,4 +1,4 @@
-seed: 1111
+seed: random
 device: cuda
 image_size: 224
 stage1_checkpoint: outputs/stage1_paco/iot_final.pt

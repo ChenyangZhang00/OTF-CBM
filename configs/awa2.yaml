@@ -1,4 +1,4 @@
-seed: 1111
+seed: random
 device: cuda
 image_size: 224
 stage1_checkpoint: outputs/stage1_paco/iot_final.pt
@@ -9,6 +9,7 @@ dataset:
   root: data/datasets/Animals_with_Attributes2
   num_classes: 50
   val_fraction: 0.2
+  split_seed: 1111
 
 backbone:
   repository: facebookresearch/dinov2
